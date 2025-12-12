@@ -37,7 +37,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (session) {
-      setLocation('/dashboard');
+      setLocation(`${window.location.origin}/dashboard`);
     }
   }, [session, setLocation]);
 
@@ -143,12 +143,16 @@ export default function LoginPage() {
         },
       });
 
+
       if (error) throw error;
 
       toast({
         title: '✅ Account Created!',
-        description: 'Please check your email to verify your account.',
+        description: 'Please create your company account and enter your details here.',
       });
+      
+      // Redirect to onboarding page
+      setLocation('/');
 
     } catch (error: any) {
       toast({

@@ -145,7 +145,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
 
         return (
           <Link key={item.path} href={item.path}>
-            <a
+            <div
               onMouseEnter={() => !expanded && setHoveredNav(item.path)}
               onMouseLeave={() => setHoveredNav(prev => (prev === item.path ? null : prev))}
               className={`relative flex items-center ${
@@ -184,7 +184,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
                   </motion.span>
                 )}
               </AnimatePresence>
-            </a>
+            </div>
           </Link>
         );
       })}

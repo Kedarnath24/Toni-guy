@@ -21,10 +21,12 @@
     "install:all": "npm install"
   },
   "devDependencies": {
+    "@types/dotenv": "^6.1.1",
     "concurrently": "^9.2.1"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.87.0",
-    "docker": "^1.0.0"
+    "@supabase/supabase-js": "^2.87.1",
+    "docker": "^1.0.0",
+    "dotenv": "^17.2.3"
   }
 }

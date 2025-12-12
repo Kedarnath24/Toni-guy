@@ -82,14 +82,15 @@ function Router() {
     <Switch>
       <Route path="/login" component={LoginPage} />
       <Route path="/">{() => <ProtectedRoute component={Onboarding} />}</Route>
+      <Route path="/onboarding">{() => <ProtectedRoute component={Onboarding} />}</Route>
       <Route path="/success">{() => <ProtectedRoute component={Success} />}</Route>
       <Route path="/feedback" component={FeedbackForm} />
       <Route path="/booking" component={PublicBookingPage} />
       <Route path="/book/:serviceId" component={PublicBookingPage} />
       <Route path="/booking/:workspaceId" component={PublicBookingPage} />
-  <Route path="/team/login" component={TeamLogin} />
-  <Route path="/team" component={TeamDashboard} />
-  <Route path="/team/public/:memberId" component={TeamPublicView} />
+      <Route path="/team/login" component={TeamLogin} />
+      <Route path="/team" component={TeamDashboard} />
+      <Route path="/team/public/:memberId" component={TeamPublicView} />
       <Route path="/dashboard">{() => <ProtectedRoute component={DashboardOverview} />}</Route>
       <Route path="/dashboard/appointments">{() => <ProtectedRoute component={AppointmentsPage} />}</Route>
       <Route path="/dashboard/workflows">{() => <ProtectedRoute component={WorkflowsPage} />}</Route>
@@ -112,16 +113,16 @@ function Router() {
       <Route path="/dashboard/admin/whatsapp/connect">{() => <ProtectedRoute component={WhatsAppConnect} />}</Route>
       <Route path="/dashboard/workspace/:id">{() => <ProtectedRoute component={WorkspaceView} />}</Route>
       <Route path="/dashboard/salespersons">{() => <ProtectedRoute component={SalespersonsPage} />}</Route>
-  <Route path="/dashboard/invoices">{() => <ProtectedRoute component={InvoicesPage} />}</Route>
-  <Route path="/dashboard/pos">{() => <ProtectedRoute component={POSPage} />}</Route>
-  <Route path="/pos-register">{() => <ProtectedRoute component={POSRegister} />}</Route>
-  <Route path="/dashboard/staff-kpi">{() => <ProtectedRoute component={StaffKPIPage} />}</Route>
-  <Route path="/dashboard/vendor-management">{() => <ProtectedRoute component={VendorManagementPage} />}</Route>
-  <Route path="/dashboard/income">{() => <ProtectedRoute component={IncomePage} />}</Route>
-  <Route path="/dashboard/expenses">{() => <ProtectedRoute component={ExpensesPage} />}</Route>
-  <Route path="/dashboard/balance-sheet">{() => <ProtectedRoute component={BalanceSheetPage} />}</Route>
-  <Route path="/dashboard/memberships">{() => <ProtectedRoute component={MembershipsPage} />}</Route>
-  <Route path="/dashboard/staff-tips">{() => <ProtectedRoute component={StaffTipsPage} />}</Route>
+      <Route path="/dashboard/invoices">{() => <ProtectedRoute component={InvoicesPage} />}</Route>
+      <Route path="/dashboard/pos">{() => <ProtectedRoute component={POSPage} />}</Route>
+      <Route path="/pos-register">{() => <ProtectedRoute component={POSRegister} />}</Route>
+      <Route path="/dashboard/staff-kpi">{() => <ProtectedRoute component={StaffKPIPage} />}</Route>
+      <Route path="/dashboard/vendor-management">{() => <ProtectedRoute component={VendorManagementPage} />}</Route>
+      <Route path="/dashboard/income">{() => <ProtectedRoute component={IncomePage} />}</Route>
+      <Route path="/dashboard/expenses">{() => <ProtectedRoute component={ExpensesPage} />}</Route>
+      <Route path="/dashboard/balance-sheet">{() => <ProtectedRoute component={BalanceSheetPage} />}</Route>
+      <Route path="/dashboard/memberships">{() => <ProtectedRoute component={MembershipsPage} />}</Route>
+      <Route path="/dashboard/staff-tips">{() => <ProtectedRoute component={StaffTipsPage} />}</Route>
       <Route path="/dashboard/account">{() => <ProtectedRoute component={AccountPage} />}</Route>
       <Route path="/dashboard/account">{() => <ProtectedRoute component={AccountPage} />}</Route>
       <Route path="/dashboard/subscription">{() => <ProtectedRoute component={SubscriptionPage} />}</Route>

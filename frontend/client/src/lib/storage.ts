@@ -1,5 +1,6 @@
 /**
  * Safe localStorage utilities to prevent runtime errors from corrupt data
+ * All are saved in localStorage as JSON strings. Ignore this currently.
  */
 
 export function safeGetItem<T = any>(key: string, fallback: T): T {
