@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -104,15 +104,14 @@ export const exportToCSV = (transactions: Transaction[], filename = 'pos-transac
 };
 
 // ==================== EXCEL EXPORT ====================
-export const exportToExcel = (transactions: Transaction[], filename = 'pos-transactions.xlsx') => {
+export const exportToExcel = async (transactions: Transaction[], filename = 'pos-transactions.xlsx') => {
   if (!transactions || transactions.length === 0) {
     throw new Error('No data to export');
   }
 
-  // Create workbook
-  const wb = XLSX.utils.book_new();
+  const wb: any = new ExcelJS.Workbook();
 
-  // Summary Sheet
+  // Summary sheet
   const summaryData = [
     ['POS Transaction Summary Report'],
     ['Generated on:', new Date().toLocaleString()],
@@ -125,115 +124,119 @@ export const exportToExcel = (transactions: Transaction[], filename = 'pos-trans
     [''],
     ['Date Range:', transactions.length > 0 ? `${new Date(transactions[transactions.length - 1].date).toLocaleDateString()} to ${new Date(transactions[0].date).toLocaleDateString()}` : 'N/A']
   ];
-  const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
-  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+  const wsSummary = wb.addWorksheet('Summary');
+  wsSummary.addRows(summaryData);
 
-  // Transactions Sheet
-  const transactionRows = transactions.map(tx => ({
-    'Transaction ID': tx.id,
-    'Date': new Date(tx.date).toLocaleDateString(),
-    'Time': new Date(tx.date).toLocaleTimeString(),
-    'Customer Name': tx.customer.name,
-    'Customer Email': tx.customer.email || '',
-    'Customer Phone': tx.customer.phone || '',
-    'Staff (Billing)': tx.staff || '',
-    'Service Attendee': tx.serviceAttendee || '',
-    'Sales Agent': tx.salesAgent || tx.staff || '',
-    'Items': tx.items.map(item => item.name || item.productId).join('; '),
-    'Total Quantity': tx.items.reduce((sum, item) => sum + item.qty, 0),
-    'Order Value': formatCurrency(tx.orderValue || tx.amount, tx.currency || '₹'),
-    'Tax/Fees': formatCurrency((tx.amount - (tx.orderValue || tx.amount)), tx.currency || '₹'),
-    'Total Amount': formatCurrency(tx.amount, tx.currency || '₹'),
-    'Payment Method': tx.paymentMethod || 'Not specified',
-    'Open Balance': formatCurrency(tx.openBalance || 0, tx.currency || '₹'),
-    'Total Return': formatCurrency(tx.totalReturn || 0, tx.currency || '₹'),
-    'Balance Amount': formatCurrency(tx.balanceAmount || tx.amount, tx.currency || '₹'),
-    'Status': tx.status
-  }));
-  const wsTransactions = XLSX.utils.json_to_sheet(transactionRows);
-
-  // Set column widths
-  wsTransactions['!cols'] = [
-    { wch: 18 }, // Transaction ID
-    { wch: 12 }, // Date
-    { wch: 12 }, // Time
-    { wch: 20 }, // Customer Name
-    { wch: 25 }, // Email
-    { wch: 15 }, // Phone
-    { wch: 15 }, // Staff
-    { wch: 15 }, // Service Attendee
-    { wch: 15 }, // Sales Agent
-    { wch: 40 }, // Items
-    { wch: 10 }, // Quantity
-    { wch: 12 }, // Order Value
-    { wch: 12 }, // Tax
-    { wch: 12 }, // Total
-    { wch: 15 }, // Payment
-    { wch: 12 }, // Open Balance
-    { wch: 12 }, // Return
-    { wch: 12 }, // Balance
-    { wch: 10 }  // Status
+  // Transactions sheet
+  const wsTransactions = wb.addWorksheet('Transactions');
+  wsTransactions.columns = [
+    { header: 'Transaction ID', key: 'id', width: 18 },
+    { header: 'Date', key: 'date', width: 12 },
+    { header: 'Time', key: 'time', width: 12 },
+    { header: 'Customer Name', key: 'customerName', width: 20 },
+    { header: 'Customer Email', key: 'customerEmail', width: 25 },
+    { header: 'Customer Phone', key: 'customerPhone', width: 15 },
+    { header: 'Staff (Billing)', key: 'staff', width: 15 },
+    { header: 'Service Attendee', key: 'serviceAttendee', width: 15 },
+    { header: 'Sales Agent', key: 'salesAgent', width: 15 },
+    { header: 'Items', key: 'items', width: 40 },
+    { header: 'Total Quantity', key: 'totalQuantity', width: 10 },
+    { header: 'Order Value', key: 'orderValue', width: 12 },
+    { header: 'Tax/Fees', key: 'taxFees', width: 12 },
+    { header: 'Total Amount', key: 'totalAmount', width: 12 },
+    { header: 'Payment Method', key: 'paymentMethod', width: 15 },
+    { header: 'Open Balance', key: 'openBalance', width: 12 },
+    { header: 'Total Return', key: 'totalReturn', width: 12 },
+    { header: 'Balance Amount', key: 'balanceAmount', width: 12 },
+    { header: 'Status', key: 'status', width: 10 }
   ];
 
-  XLSX.utils.book_append_sheet(wb, wsTransactions, 'Transactions');
+  transactions.forEach(tx => {
+    wsTransactions.addRow({
+      id: tx.id,
+      date: new Date(tx.date).toLocaleDateString(),
+      time: new Date(tx.date).toLocaleTimeString(),
+      customerName: tx.customer.name,
+      customerEmail: tx.customer.email || '',
+      customerPhone: tx.customer.phone || '',
+      staff: tx.staff || '',
+      serviceAttendee: tx.serviceAttendee || '',
+      salesAgent: tx.salesAgent || tx.staff || '',
+      items: tx.items.map(i => i.name || i.productId).join('; '),
+      totalQuantity: tx.items.reduce((s, it) => s + it.qty, 0),
+      orderValue: formatCurrency(tx.orderValue || tx.amount, tx.currency || '₹'),
+      taxFees: formatCurrency((tx.amount - (tx.orderValue || tx.amount)), tx.currency || '₹'),
+      totalAmount: formatCurrency(tx.amount, tx.currency || '₹'),
+      paymentMethod: tx.paymentMethod || 'Not specified',
+      openBalance: formatCurrency(tx.openBalance || 0, tx.currency || '₹'),
+      totalReturn: formatCurrency(tx.totalReturn || 0, tx.currency || '₹'),
+      balanceAmount: formatCurrency(tx.balanceAmount || tx.amount, tx.currency || '₹'),
+      status: tx.status
+    });
+  });
 
-  // Items Detail Sheet
-  const itemsDetailRows: any[] = [];
+  // Items Detail sheet
+  const wsItems = wb.addWorksheet('Item Details');
+  wsItems.columns = [
+    { header: 'Transaction ID', key: 'txId', width: 18 },
+    { header: 'Date', key: 'date', width: 12 },
+    { header: 'Customer', key: 'customer', width: 20 },
+    { header: 'Staff', key: 'staff', width: 15 },
+    { header: 'Item Name', key: 'itemName', width: 30 },
+    { header: 'Quantity', key: 'qty', width: 10 },
+    { header: 'Unit Price', key: 'unitPrice', width: 12 },
+    { header: 'Line Total', key: 'lineTotal', width: 12 },
+    { header: 'Status', key: 'status', width: 10 }
+  ];
+
   transactions.forEach(tx => {
     tx.items.forEach(item => {
-      itemsDetailRows.push({
-        'Transaction ID': tx.id,
-        'Date': new Date(tx.date).toLocaleDateString(),
-        'Customer': tx.customer.name,
-        'Staff': tx.staff || '',
-        'Item Name': item.name || item.productId,
-        'Quantity': item.qty,
-        'Unit Price': formatCurrency(item.price, tx.currency || '₹'),
-        'Line Total': formatCurrency(item.price * item.qty, tx.currency || '₹'),
-        'Status': tx.status
+      wsItems.addRow({
+        txId: tx.id,
+        date: new Date(tx.date).toLocaleDateString(),
+        customer: tx.customer.name,
+        staff: tx.staff || '',
+        itemName: item.name || item.productId,
+        qty: item.qty,
+        unitPrice: formatCurrency(item.price, tx.currency || '₹'),
+        lineTotal: formatCurrency(item.price * item.qty, tx.currency || '₹'),
+        status: tx.status
       });
     });
   });
-  const wsItems = XLSX.utils.json_to_sheet(itemsDetailRows);
-  wsItems['!cols'] = [
-    { wch: 18 },
-    { wch: 12 },
-    { wch: 20 },
-    { wch: 15 },
-    { wch: 30 },
-    { wch: 10 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 10 }
-  ];
-  XLSX.utils.book_append_sheet(wb, wsItems, 'Item Details');
 
-  // Staff Performance Sheet
+  // Staff Performance sheet
   const staffMap = new Map<string, { sales: number; amount: number; transactions: number }>();
   transactions.forEach(tx => {
     const staff = tx.staff || 'Unassigned';
-    if (!staffMap.has(staff)) {
-      staffMap.set(staff, { sales: 0, amount: 0, transactions: 0 });
-    }
+    if (!staffMap.has(staff)) staffMap.set(staff, { sales: 0, amount: 0, transactions: 0 });
     const stats = staffMap.get(staff)!;
     stats.transactions += 1;
     stats.sales += tx.items.reduce((sum, item) => sum + item.qty, 0);
     stats.amount += tx.amount;
   });
 
-  const staffRows = Array.from(staffMap.entries()).map(([staff, stats]) => ({
-    'Staff Name': staff,
-    'Total Transactions': stats.transactions,
-    'Items Sold': stats.sales,
-    'Total Revenue': formatCurrency(stats.amount),
-    'Average Transaction': formatCurrency(Math.round(stats.amount / stats.transactions))
-  }));
-  const wsStaff = XLSX.utils.json_to_sheet(staffRows);
-  wsStaff['!cols'] = [{ wch: 20 }, { wch: 18 }, { wch: 12 }, { wch: 15 }, { wch: 18 }];
-  XLSX.utils.book_append_sheet(wb, wsStaff, 'Staff Performance');
+  const wsStaff = wb.addWorksheet('Staff Performance');
+  wsStaff.columns = [
+    { header: 'Staff Name', key: 'name', width: 20 },
+    { header: 'Total Transactions', key: 'transactions', width: 18 },
+    { header: 'Items Sold', key: 'itemsSold', width: 12 },
+    { header: 'Total Revenue', key: 'revenue', width: 15 },
+    { header: 'Average Transaction', key: 'avg', width: 18 }
+  ];
+  Array.from(staffMap.entries()).forEach(([staff, stats]) => {
+    wsStaff.addRow({
+      name: staff,
+      transactions: stats.transactions,
+      itemsSold: stats.sales,
+      revenue: formatCurrency(stats.amount),
+      avg: formatCurrency(Math.round(stats.amount / stats.transactions))
+    });
+  });
 
-  // Write file
-  XLSX.writeFile(wb, filename);
+  // Write and trigger download
+  const buffer = await wb.xlsx.writeBuffer();
+  downloadBlob(buffer, filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 };
 
 // ==================== PDF EXPORT ====================

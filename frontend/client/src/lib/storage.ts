@@ -2,6 +2,7 @@
  * Safe localStorage utilities to prevent runtime errors from corrupt data
  * All are saved in localStorage as JSON strings. Ignore this currently.
  */
+import { createClient } from "@supabase/supabase-js";
 
 export function safeGetItem<T = any>(key: string, fallback: T): T {
   try {
